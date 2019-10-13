@@ -1,4 +1,4 @@
-[![travis ci status](https://travis-ci.org/BillKeenan/dead-drop-python.svg?branch=master)](https://travis-ci.org/BillKeenan/dead-drop-python)
+[![travis ci status](https://travis-ci.org/hymnis/dead-drop-python.svg?branch=master)](https://travis-ci.org/hymnis/dead-drop-python)
 
 # dead-drop - now with more python
 =========
