@@ -5,29 +5,25 @@
 
 Live at [dead-drop.me](https://dead-drop.me)
 
-Secure text sender, generates a 1-time link and password. stores encrypted in mongo
+Secure text sender, generates a one-time link and password. stores encrypted in MongoDB.
 
 The intention here is to be self contained, and operate all in browser to minimize attack vectors.
 
-There is a sample Apache configuration, as well as a vagrant test environment.
 
-# get going
-==========
-
-
-# DEV INSTRUCTIONS
-
-** untested **
+# Development Instructions
 
 1. install mongodb
 2. install python3
 3. install/activate virtualenv
-4. pip install -r requirements.txt
+4. pip install -r requirements/dev.txt
 5. python wsgi.py
 
 
+# License
+
 This code is free to use as per the license, it would be polite to put a link to dead-drop.me in the footer however.
 
+# Using with nginx
 
-For prod, i'm using UWSGI instructions here
+For prod ([dead-drop.me](https://dead-drop.me)), I'm using UWSGI instructions from here:
 https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04
