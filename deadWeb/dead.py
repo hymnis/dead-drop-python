@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 from flask import Flask, render_template, send_from_directory, request, Response, jsonify
 from pymongo import MongoClient, errors
+from environs import Env
 import uniqid
 import hashlib
 import json
@@ -10,17 +11,26 @@ class DropHandler:
 
     client = None
     clientHash = None
-    salt = "a6891cca-3ea1-4f56-b3a8-1d77095a088e"
+    salt = None
     
-    def __init__(self, db):
+    def __init__(self):
+        env = Env()
+        env.read_env()
+
+        self.salt = env("SALT", "a6891cca-3ea1-4f56-b3a8-1d77095a088e")
+        mongo_host = env("MONGO_HOST", "localhost")
+        mongo_port = env("MONGO_PORT", "27017")
+        mongo_timeout = env.int("MONGO_TIMEOUT", 5000)
+        mongo_uri = "mongodb://{}:{}".format(mongo_host, mongo_port)
+
+        db = MongoClient(mongo_uri, connectTimeoutMS=mongo_timeout, serverSelectionTimeoutMS=mongo_timeout)
         self.client = db.dead
-        pass
 
     def get_timed_key(self):
         drop_id = uniqid.uniqid()
         self.client.formKeys.insert_one({"key": drop_id, "created": datetime.now()})
         return drop_id
-        
+
 
     def stats(self):
         pipeline = [
@@ -83,7 +93,6 @@ class DropHandler:
             # no create date, no drop for you
             return []
 
-
     def drop(self, data):
         key = uniqid.uniqid()
         self.client.drop.insert_one({"key" :key, "data":data, "createdDate":datetime.now()})
@@ -98,7 +107,7 @@ class DropHandler:
         self.clientHash = m.hexdigest()[:32]
 
 
-HANDLER = DropHandler(MongoClient(connectTimeoutMS=5000,serverSelectionTimeoutMS=5000))
+HANDLER = DropHandler()
 
 
 APP = Flask(__name__)
