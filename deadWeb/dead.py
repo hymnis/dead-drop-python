@@ -5,7 +5,7 @@ import hashlib
 import json
 from flask import Flask, render_template, send_from_directory, request, \
     Response, jsonify
-from pymongo import MongoClient, errors
+from pymongo import MongoClient
 from environs import Env
 import uniqid
 
