@@ -16,6 +16,7 @@ def test_track_is_saved(mock_pymongo):
     dead.set_request_hash("127.0.0.1")
     data = {'test': "here"}
     dead.drop(data)
+
     mock_pymongo.dead.track.insert_one.assert_called_with({
         'key': ANY,
         'userHash': ANY,
@@ -33,7 +34,7 @@ def test_user_hash_is_truncated(mock_pymongo):
     data = {'test': "here"}
     dead.drop(data)
 
-    salted_ip = DropHandler.salt + ip_addr
+    salted_ip = dead.salt + ip_addr
     hasher = hashlib.sha256()
     hasher.update(salted_ip.encode('utf-8'))
     client_hash = hasher.hexdigest()[:32]
@@ -52,6 +53,7 @@ def test_drop_is_saved(mock_pymongo):
     dead = DropHandler(mock_pymongo)
     data = {"test": "here"}
     dead.drop(data)
+
     mock_pymongo.dead.drop.insert_one.assert_called_with({
         'key': ANY,
         'data': data,
@@ -68,8 +70,8 @@ def test_drop_deleted_when_accessed(mock_pymongo):
     pprint.pprint("XXXXX")
     pprint.pprint(sample_drop)
     val = dead.pickup(sample_drop['key'])
-
     pprint.pprint(val)
+
     mock_pymongo.dead.drop.find_one_and_delete.assert_called_with({
         'key': sample_drop['key']})
     assert sample_drop['data'] == val
@@ -83,6 +85,7 @@ def test_track_updated_when_accessed(mock_pymongo):
     mock_pymongo.dead.drop.find_one_and_delete.return_value = sample_drop
     dead = DropHandler(mock_pymongo)
     val = dead.pickup(sample_drop['key'])
+
     mock_pymongo.dead.track.update.assert_called_with(
         {"key": sample_drop['key']},
         {
@@ -114,6 +117,9 @@ def test_stats_returned(mock_pymongo):
             "distinctCount": {"$sum": 1}}},
         {"$sort": {"_id.year": 1, "_id.month": 1, "_id.day": 1}},
     ]
+    pprint.pprint(expected)
+    pprint.pprint(stats)
+
     mock_pymongo.dead.track.aggregate.assert_called_with(expected)
 
 
@@ -145,8 +151,8 @@ def test_drop_deleted_and_not_returned_when_24hours_old(mock_pymongo):
     mock_pymongo.dead.drop.find.return_value = [sample_drop]
     dead = DropHandler(mock_pymongo)
     val = dead.pickup(key)
-
     assert val == []
+
     mock_pymongo.dead.drop.find_one_and_delete.assert_called_with({'key': key})
 
 
@@ -157,8 +163,8 @@ def test_return_none_when_not_existing(mock_pymongo):
     mock_pymongo.dead.drop.find_one_and_delete.return_value = []
     dead = DropHandler(mock_pymongo)
     val = dead.pickup(sample_drop['key'])
-
     assert val == []
+
     mock_pymongo.dead.drop.find_one_and_delete.assert_called_with({
         'key': sample_drop['key']})
 
@@ -168,6 +174,7 @@ def test_timed_key_is_saved(mock_pymongo):
     """See if timed key is saved."""
     dead = DropHandler(mock_pymongo)
     timed_key = dead.get_timed_key()
+
     mock_pymongo.dead.formKeys.insert_one.assert_called_with({
         'key': timed_key, "created": ANY})
 
